@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 130 100% 50%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 60.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 130 100% 50%;
+    --chart-1: 130 100% 50%;
+    --chart-2: 0 62.8% 60.6%;
+    --chart-3: 43 74% 66%;
+    --chart-4: 280 87% 65%;
+    --chart-5: 340 75% 55%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    @apply scroll-smooth;
+  }
+  
+  body {
+    @apply bg-trading-dark text-trading-white font-mono antialiased;
+    @apply selection:bg-trading-green/20 selection:text-trading-green;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-trading-dark-light;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-trading-gray rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-trading-gray-light;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #2f3349 #16213e;
+  }
+}
+
+@layer components {
+  .trading-card {
+    @apply bg-trading-dark-light border border-trading-gray rounded-lg p-4 backdrop-blur-sm;
+  }
+
+  .trading-button-primary {
+    @apply bg-trading-green hover:bg-trading-green-dark text-trading-dark font-semibold py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+
+  .trading-button-secondary {
+    @apply bg-trading-red hover:bg-trading-red-dark text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+
+  .trading-input {
+    @apply bg-trading-dark-lighter border border-trading-gray rounded-lg px-3 py-2 text-trading-white placeholder-trading-gray-light focus:border-trading-green focus:ring-1 focus:ring-trading-green outline-none;
+  }
+
+  .profit-positive {
+    @apply text-trading-green;
+  }
+
+  .profit-negative {
+    @apply text-trading-red;
+  }
+
+  .profit-neutral {
+    @apply text-trading-white-muted;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-trading-green to-trading-green-light bg-clip-text text-transparent;
+  }
+}
