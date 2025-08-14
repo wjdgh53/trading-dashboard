@@ -23,7 +23,23 @@ export const tradingHistoryService = {
     let query = supabase
       .from('trading_history')
       .select('*')
-      .order('timestamp', { ascending: false });
+      .order('trade_date', { ascending: false });
+    
+    if (userId) {
+      query = query.eq('user_id', userId);
+    }
+    
+    const { data, error } = await query;
+    if (error) throw error;
+    return data;
+  },
+
+  async getBySymbol(symbol: string, userId?: string) {
+    let query = supabase
+      .from('trading_history')
+      .select('*')
+      .eq('symbol', symbol)
+      .order('trade_date', { ascending: false });
     
     if (userId) {
       query = query.eq('user_id', userId);
@@ -98,7 +114,7 @@ export const completedTradesService = {
   async getMetrics(userId?: string) {
     let query = supabase
       .from('completed_trades')
-      .select('profit_loss, percentage_return');
+      .select('realized_pnl, profit_percentage, win_loss');
     
     if (userId) {
       query = query.eq('user_id', userId);
@@ -111,28 +127,34 @@ export const completedTradesService = {
       return {
         totalTrades: 0,
         winRate: 0,
-        totalProfit: 0,
+        totalPnL: 0,
         averageReturn: 0,
         bestTrade: 0,
-        worstTrade: 0
+        worstTrade: 0,
+        totalWins: 0,
+        totalLosses: 0
       };
     }
 
     const totalTrades = data.length;
-    const winningTrades = data.filter(trade => trade.profit_loss > 0).length;
-    const winRate = (winningTrades / totalTrades) * 100;
-    const totalProfit = data.reduce((sum, trade) => sum + trade.profit_loss, 0);
-    const averageReturn = data.reduce((sum, trade) => sum + trade.percentage_return, 0) / totalTrades;
-    const bestTrade = Math.max(...data.map(trade => trade.profit_loss));
-    const worstTrade = Math.min(...data.map(trade => trade.profit_loss));
+    const totalWins = data.filter(trade => trade.win_loss === 'win').length;
+    const totalLosses = totalTrades - totalWins;
+    const winRate = (totalWins / totalTrades) * 100;
+    const totalPnL = data.reduce((sum, trade) => sum + (trade.realized_pnl || 0), 0);
+    const averageReturn = data.reduce((sum, trade) => sum + (trade.profit_percentage || 0), 0) / totalTrades;
+    const pnlValues = data.map(trade => trade.realized_pnl || 0);
+    const bestTrade = pnlValues.length > 0 ? Math.max(...pnlValues) : 0;
+    const worstTrade = pnlValues.length > 0 ? Math.min(...pnlValues) : 0;
 
     return {
       totalTrades,
       winRate: Math.round(winRate * 100) / 100,
-      totalProfit: Math.round(totalProfit * 100) / 100,
+      totalPnL: Math.round(totalPnL * 100) / 100,
       averageReturn: Math.round(averageReturn * 100) / 100,
       bestTrade: Math.round(bestTrade * 100) / 100,
-      worstTrade: Math.round(worstTrade * 100) / 100
+      worstTrade: Math.round(worstTrade * 100) / 100,
+      totalWins,
+      totalLosses
     };
   }
 };

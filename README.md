@@ -1,15 +1,38 @@
-# NomadVibe Trading Dashboard
+# Professional Trading Dashboard
 
-A modern, responsive trading dashboard built with Next.js 14, Supabase, and Tailwind CSS. Features real-time market data, AI-powered insights, and comprehensive trading analytics.
+A comprehensive, real-time trading dashboard built with Next.js 14, Supabase, and TypeScript. This application provides professional-grade analytics and data visualization for trading performance with advanced filtering capabilities and clean data presentation.
 
 ## 🚀 Features
 
-- **Real-time Trading Data**: Live market prices and portfolio tracking
-- **AI-Powered Analysis**: Machine learning insights for trading decisions
-- **Responsive Design**: Mobile-first design with dark trading theme
-- **Supabase Integration**: Real-time database with authentication
-- **TypeScript**: Full type safety throughout the application
-- **Performance Optimized**: Built for speed with Next.js 14 App Router
+### 📊 Real-time Data Display
+- **Live Data Fetching**: Direct integration with Supabase for real-time trading data
+- **Professional Formatting**: Clean currency formatting ($1,234.56), percentage display (45.2%), and proper date formatting (Dec 15, 2024)
+- **Color-coded P&L**: Green for profits, red for losses with visual indicators
+
+### 📈 Key Metrics Dashboard
+- **Total P&L**: Aggregate profit/loss across all trades with trend indicators
+- **Win Rate**: Calculated win percentage with win/loss breakdown
+- **Active Trades**: Current trading positions with symbol count
+- **Best/Worst Trades**: Highlight top performing and worst trades
+
+### 🔍 Advanced Filtering System
+- **Symbol Filtering**: Filter by specific trading symbols/tickers
+- **Date Range Filtering**: Custom date ranges with quick filters (7 days, 30 days, 3 months)
+- **Win/Loss Filtering**: Filter by profitable or losing trades
+- **Clear Filters**: Easy reset of all active filters
+- **Real-time Filter Application**: Instant results without page refresh
+
+### 📋 Data Tables
+- **Completed Trades**: Comprehensive view of closed positions with P&L, duration, and strategy
+- **Trading History**: All trading activity with AI and technical confidence scores
+- **AI Learning Data**: Machine learning predictions with accuracy scores and market conditions
+
+### 🎨 Professional UI/UX
+- **Modern Dark Theme**: Professional trading interface design
+- **Responsive Layout**: Optimized for desktop, tablet, and mobile
+- **Loading States**: Smooth loading animations and skeleton screens
+- **Error Handling**: Comprehensive error states with retry functionality
+- **Interactive Components**: Hover effects, transitions, and visual feedback
 
 ## 🛠 Tech Stack
 
@@ -150,6 +173,44 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view the dashboard.
+
+## 🎯 Usage Guide
+
+### Dashboard Navigation
+The professional trading dashboard provides three main tabs:
+
+1. **Completed Trades Tab**: View all closed trading positions with detailed P&L analysis
+   - Sortable columns for date, symbol, P&L, return percentage, and duration
+   - Color-coded profit/loss indicators
+   - Summary row with totals and averages
+
+2. **Trading History Tab**: Monitor all trading activity with confidence indicators
+   - AI and technical confidence score visualization
+   - Buy/sell action indicators with icons
+   - Execution success status tracking
+
+3. **AI Learning Data Tab**: Analyze machine learning prediction accuracy
+   - RSI and MACD accuracy scores with progress bars
+   - Market regime indicators and VIX levels
+   - Prediction types and confidence scores
+
+### Advanced Filtering
+- **Symbol Filter**: Select specific trading symbols from the dropdown
+- **Date Filters**: Use date pickers for custom ranges or quick filter buttons (7 days, 30 days, 3 months)
+- **Result Filter**: Toggle between All/Wins/Losses for completed trades
+- **Clear Filters**: Reset all filters with one click
+- **Live Updates**: Filters apply instantly without page refresh
+
+### Key Metrics Cards
+- **Total P&L**: Shows aggregate profit/loss with color coding and trend indicators
+- **Win Rate**: Percentage of profitable trades with win/loss breakdown
+- **Active Trades**: Current open positions count with symbol diversity
+- **Best Trade**: Highest single trade profit with worst trade comparison
+
+### Data Refresh
+- Click the "Refresh Data" button to fetch the latest data from Supabase
+- Loading indicators show when data is being fetched
+- Last updated timestamp displays when data was refreshed
 
 ### 5. Type Generation (Optional)
 
