@@ -1,0 +1,42 @@
+column_name,data_type,is_nullable
+id,integer,NO
+symbol,character varying,NO
+trade_date,timestamp with time zone,YES
+action,character varying,NO
+ai_confidence,numeric,YES
+ai_reason,text,YES
+technical_confidence,numeric,YES
+sentiment_score,numeric,YES
+sentiment_trading_signal,character varying,YES
+order_id,character varying,YES
+order_status,character varying,YES
+position_size,integer,YES
+entry_price,numeric,YES
+target_price,numeric,YES
+stop_loss,numeric,YES
+current_price,numeric,YES
+execution_success,boolean,YES
+execution_status,character varying,YES
+execution_reason,text,YES
+previous_qty,integer,YES
+new_qty,integer,YES
+avg_entry_price,numeric,YES
+unrealized_pl,numeric,YES
+unrealized_plpc,numeric,YES
+account_equity,numeric,YES
+account_cash,numeric,YES
+buying_power,numeric,YES
+portfolio_value,numeric,YES
+vix_current,numeric,YES
+fear_level,character varying,YES
+technical_recommendation,character varying,YES
+technical_signals,jsonb,YES
+rsi_value,text,YES
+macd_value,text,YES
+moving_averages,text,YES
+news_count,integer,YES
+sentiment_categories,jsonb,YES
+combined_score,integer,YES
+risk_reward_ratio,character varying,YES
+time_horizon,character varying,YES
+created_at,timestamp with time zone,YES

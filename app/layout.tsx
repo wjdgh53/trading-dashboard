@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import Sidebar from '@/components/layout/Sidebar';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -47,24 +48,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.variable} font-sans antialiased`}>
-        <div className="min-h-screen bg-gradient-to-br from-trading-dark via-trading-dark-light to-trading-dark">
-          <div className="relative">
-            {/* Background grid pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div 
-                className="absolute inset-0" 
-                style={{
-                  backgroundImage: `
-                    linear-gradient(rgba(0, 255, 136, 0.1) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(0, 255, 136, 0.1) 1px, transparent 1px)
-                  `,
-                  backgroundSize: '50px 50px',
-                }}
-              />
-            </div>
+        <div className="min-h-screen bg-gray-950">
+          <div className="flex h-screen">
+            {/* Sidebar */}
+            <Sidebar />
             
-            {/* Main content */}
-            <main className="relative z-10">
+            {/* Main content area */}
+            <main className="flex-1 overflow-auto">
               {children}
             </main>
           </div>

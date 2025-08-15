@@ -1,0 +1,20 @@
+column_name,data_type,is_nullable
+id,integer,NO
+symbol,character varying,NO
+trade_date,timestamp without time zone,YES
+sold_quantity,integer,NO
+entry_price,numeric,NO
+exit_price,numeric,NO
+realized_pnl,numeric,NO
+profit_percentage,numeric,NO
+win_loss,character varying,NO
+ai_confidence,integer,YES
+ai_reason,text,YES
+technical_confidence,integer,YES
+sentiment_score,numeric,YES
+vix_level,numeric,YES
+rsi_signal,text,YES
+macd_signal,text,YES
+moving_averages,text,YES
+original_trading_history_id,integer,YES
+created_at,timestamp without time zone,YES

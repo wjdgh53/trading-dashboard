@@ -112,3 +112,87 @@ secrets/
 # Local development overrides
 docker-compose.override.yml
 .env.local.backup
+
+# Additional security exclusions
+.env.production
+.env.staging
+.env.test
+config/secrets.json
+credentials.json
+service-account.json
+private-key.pem
+certificate.crt
+
+# Backup files
+*.backup
+*.bak
+*.orig
+*.save
+*~
+
+# Certificate files
+*.crt
+*.p12
+*.pfx
+*.keystore
+
+# API keys and tokens
+.tokens/
+.keys/
+api-keys.json
+tokens.json
+
+# Deployment artifacts
+deploy.log
+deployment-config.json
+infrastructure/
+terraform.tfstate
+terraform.tfstate.backup
+.terraform/
+
+# Performance and monitoring
+bundle-analyzer-report.html
+lighthouse-report.html
+webpack-bundle-analyzer.json
+
+# Testing artifacts
+test-results/
+coverage/
+.nyc_output/
+junit.xml
+test-report.html
+
+# Editor and IDE specific
+.history/
+.metals/
+.bloop/
+.ammonite/
+.worksheet/
+.scala_dependencies
+.tool-versions
+
+# MacOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# Windows specific
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux specific
+*~
+.nfs*
+
+# Temporary uploads
+uploads/temp/
+tmp-uploads/
+
+# Generated documentation
+docs/generated/
+api-docs/
+
+# Analytics and tracking
+.analytics/
+tracking-data/
