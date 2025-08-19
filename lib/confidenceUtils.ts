@@ -1,7 +1,37 @@
 /**
- * AI 신뢰도 계산 유틸리티
- * 708%와 같은 잘못된 값들을 현실적인 범위로 변환
+ * AI 신뢰도 및 퍼센테이지 계산 유틸리티
+ * 9239%, 708% 같은 잘못된 값들을 현실적인 범위로 변환
  */
+
+/**
+ * 모든 퍼센테이지 값을 정규화 (9239% → 92.39%)
+ */
+export function normalizePercentage(value: number | null | undefined): number {
+  if (!value || isNaN(value) || value === null || value === undefined) return 0;
+  
+  // 이미 0-100 범위면 그대로
+  if (value >= 0 && value <= 100) return Math.round(value * 10) / 10;
+  
+  // 0-1 범위면 100 곱하기
+  if (value >= 0 && value <= 1) return Math.round(value * 1000) / 10;
+  
+  // 100 넘으면 적절히 조정
+  if (value > 100 && value <= 10000) return Math.round((value / 100) * 10) / 10;
+  
+  // 10000 넘으면 10000으로 나누기 (9239 → 92.39)
+  if (value > 10000) return Math.round((value / 10000) * 1000) / 10;
+  
+  // 그 외는 0으로
+  return 0;
+}
+
+/**
+ * 퍼센테이지를 포맷팅해서 문자열로 반환
+ */
+export function formatPercentage(value: number | null | undefined, decimals: number = 1): string {
+  const normalized = normalizePercentage(value);
+  return `${normalized.toFixed(decimals)}%`;
+}
 
 export function normalizeConfidenceScore(confidence: number | null | undefined): number {
   if (!confidence || confidence === null || confidence === undefined) {
