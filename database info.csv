@@ -1,0 +1,87 @@
+table_name,column_name,data_type,is_nullable,column_default,ordinal_position
+ai_learning_data,id,integer,NO,nextval('ai_learning_data_id_seq'::regclass),1
+ai_learning_data,symbol,character varying,YES,null,2
+ai_learning_data,trade_date,timestamp without time zone,YES,null,3
+ai_learning_data,analysis_date,timestamp without time zone,YES,now(),4
+ai_learning_data,actual_result,character varying,YES,null,5
+ai_learning_data,actual_profit_percentage,numeric,YES,null,6
+ai_learning_data,actual_holding_days,integer,YES,null,7
+ai_learning_data,predicted_confidence_initial,integer,YES,null,8
+ai_learning_data,predicted_confidence_final,integer,YES,null,9
+ai_learning_data,confidence_volatility,integer,YES,null,10
+ai_learning_data,rsi_accuracy_score,numeric,YES,null,11
+ai_learning_data,macd_accuracy_score,numeric,YES,null,12
+ai_learning_data,ma_accuracy_score,numeric,YES,null,13
+ai_learning_data,best_indicator,character varying,YES,null,14
+ai_learning_data,sentiment_accuracy_score,numeric,YES,null,15
+ai_learning_data,sentiment_price_correlation,numeric,YES,null,16
+ai_learning_data,market_regime,character varying,YES,null,17
+ai_learning_data,volatility_environment,character varying,YES,null,18
+ai_learning_data,vix_level,numeric,YES,null,19
+ai_learning_data,overconfidence_detected,boolean,YES,null,20
+ai_learning_data,optimal_threshold_suggested,integer,YES,null,21
+ai_learning_data,decision_quality_score,numeric,YES,null,22
+ai_learning_data,recommended_actions,jsonb,YES,null,23
+ai_learning_data,roi_vs_market,numeric,YES,null,24
+ai_learning_data,risk_adjusted_return,numeric,YES,null,25
+completed_trades,id,integer,NO,nextval('completed_trades_id_seq'::regclass),1
+completed_trades,symbol,character varying,NO,null,2
+completed_trades,trade_date,timestamp without time zone,YES,now(),3
+completed_trades,sold_quantity,integer,NO,null,4
+completed_trades,entry_price,numeric,NO,null,5
+completed_trades,exit_price,numeric,NO,null,6
+completed_trades,realized_pnl,numeric,NO,null,7
+completed_trades,profit_percentage,numeric,NO,null,8
+completed_trades,win_loss,character varying,NO,null,9
+completed_trades,ai_confidence,integer,YES,null,10
+completed_trades,ai_reason,text,YES,null,11
+completed_trades,technical_confidence,integer,YES,null,12
+completed_trades,sentiment_score,numeric,YES,null,13
+completed_trades,vix_level,numeric,YES,null,14
+completed_trades,rsi_signal,text,YES,null,15
+completed_trades,macd_signal,text,YES,null,16
+completed_trades,moving_averages,text,YES,null,17
+completed_trades,original_trading_history_id,integer,YES,null,18
+completed_trades,created_at,timestamp without time zone,YES,now(),19
+trading_history,id,integer,NO,nextval('trading_history_id_seq'::regclass),1
+trading_history,symbol,character varying,NO,null,2
+trading_history,trade_date,timestamp with time zone,YES,now(),3
+trading_history,action,character varying,NO,null,4
+trading_history,ai_confidence,numeric,YES,null,5
+trading_history,ai_reason,text,YES,null,6
+trading_history,technical_confidence,numeric,YES,null,7
+trading_history,sentiment_score,numeric,YES,null,8
+trading_history,sentiment_trading_signal,character varying,YES,null,9
+trading_history,order_id,character varying,YES,null,10
+trading_history,order_status,character varying,YES,null,11
+trading_history,position_size,integer,YES,null,12
+trading_history,entry_price,numeric,YES,null,13
+trading_history,target_price,numeric,YES,null,14
+trading_history,stop_loss,numeric,YES,null,15
+trading_history,current_price,numeric,YES,null,16
+trading_history,execution_success,boolean,YES,null,17
+trading_history,execution_status,character varying,YES,null,18
+trading_history,execution_reason,text,YES,null,19
+trading_history,previous_qty,integer,YES,0,20
+trading_history,new_qty,integer,YES,0,21
+trading_history,avg_entry_price,numeric,YES,null,22
+trading_history,unrealized_pl,numeric,YES,null,23
+trading_history,unrealized_plpc,numeric,YES,null,24
+trading_history,account_equity,numeric,YES,null,25
+trading_history,account_cash,numeric,YES,null,26
+trading_history,buying_power,numeric,YES,null,27
+trading_history,portfolio_value,numeric,YES,null,28
+trading_history,vix_current,numeric,YES,null,29
+trading_history,fear_level,character varying,YES,null,30
+trading_history,technical_recommendation,character varying,YES,null,31
+trading_history,technical_signals,jsonb,YES,null,32
+trading_history,rsi_value,text,YES,null,33
+trading_history,macd_value,text,YES,null,34
+trading_history,moving_averages,text,YES,null,35
+trading_history,news_count,integer,YES,null,36
+trading_history,sentiment_categories,jsonb,YES,null,37
+trading_history,combined_score,integer,YES,null,38
+trading_history,risk_reward_ratio,character varying,YES,null,39
+trading_history,time_horizon,character varying,YES,null,40
+trading_history,created_at,timestamp with time zone,YES,now(),41
+trading_history,ai_commentary,text,YES,null,42
