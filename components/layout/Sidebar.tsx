@@ -17,11 +17,14 @@ import {
   History,
   Target,
   Brain,
-  Zap
+  Zap,
+  Bot
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Simple Dashboard', href: '/simple-dashboard', icon: Zap },
+  { name: 'AI 분석', href: '/ai-analysis', icon: Brain },
+  { name: 'Agent Expert', href: '/agent-expert', icon: Bot },
   // { name: 'Dashboard', href: '/dashboard', icon: Home },
   // { name: 'Completed Trades', href: '/trades', icon: History },
   // { name: 'Current Positions', href: '/positions', icon: Target },

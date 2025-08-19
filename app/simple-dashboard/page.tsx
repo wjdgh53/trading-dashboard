@@ -1,93 +1,82 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Activity, RefreshCw, AlertCircle, Zap } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { useAdvancedTradingData } from '@/hooks/useAdvancedTradingData';
+import TradingFilters from '@/components/dashboard/TradingFilters';
+import TradingSummary from '@/components/dashboard/TradingSummary';
+import { tradingDataUtils } from '@/lib/tradingDataUtils';
 
-interface CompletedTrade {
-  id: number;
-  symbol: string;
-  trade_date: string;
-  sold_quantity: number;
-  entry_price: number;
-  exit_price: number;
-  realized_pnl: number;
-  profit_percentage: number;
-  win_loss: string;
-  ai_confidence: number;
-}
-
-interface TradingHistory {
-  id: number;
-  symbol: string;
-  trade_date: string;
-  position_size: number;
-  entry_price: number;
-  current_price: number;
-  unrealized_pl: number;
-}
 
 export default function SimpleDashboard() {
-  const [completedTrades, setCompletedTrades] = useState<CompletedTrade[]>([]);
-  const [tradingHistory, setTradingHistory] = useState<TradingHistory[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const {
+    filteredData,
+    metrics,
+    loading,
+    error,
+    lastUpdated,
+    currentFilters,
+    isFiltering,
+    applyFilters,
+    refreshData,
+    hasData,
+    totalDataPoints,
+    filteredDataPoints,
+    clearCache, // 캐시 클리어 함수 추가
+  } = useAdvancedTradingData();
 
-  // 데이터 가져오기
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Amount utils 참조
+  const { amount: amountUtils } = tradingDataUtils;
+
+  // 빠른 메트릭 접근
+  const completedTrades = filteredData.completed;
+  const activeTrades = filteredData.active;
+
+  // Debug: 메트릭스 출력
+  React.useEffect(() => {
+    console.log('=== DEBUG: Dashboard Metrics ===');
+    console.log('Current metrics:', metrics);
+    
+    // 매수금액/매도금액 계산 테스트
+    console.log('\n=== 매수금액/매도금액 계산 검증 ===');
+    
+    // 샘플 데이터로 테스트
+    const sampleTrade = {
+      entry_price: 150.25,
+      exit_price: 165.75,
+      position_size: 8
+    };
+    
+    const purchaseAmount = amountUtils.calculatePurchaseAmount(sampleTrade.entry_price, sampleTrade.position_size);
+    const saleAmount = amountUtils.calculateSaleAmount(sampleTrade.exit_price, sampleTrade.position_size);
+    
+    console.log('샘플 거래:', sampleTrade);
+    console.log('계산된 매수금액:', purchaseAmount, '(예상: 1202)');
+    console.log('계산된 매도금액:', saleAmount, '(예상: 1326)');
+    console.log('차이:', saleAmount - purchaseAmount, '(예상: 124)');
+    
+    // 실제 거래 데이터 검증 (있는 경우)
+    if (completedTrades.length > 0) {
+      const firstTrade = completedTrades[0];
+      console.log('\n실제 거래 검증:');
+      console.log('거래 데이터:', {
+        symbol: firstTrade.symbol,
+        entry_price: firstTrade.entry_price,
+        exit_price: firstTrade.exit_price,
+        position_size: firstTrade.position_size,
+        purchase_amount: firstTrade.purchase_amount,
+        sale_amount: firstTrade.sale_amount
+      });
       
-      console.log('🚀 데이터 가져오는 중...');
+      // 재계산해서 검증
+      const recalcPurchase = amountUtils.calculatePurchaseAmount(firstTrade.entry_price, firstTrade.position_size);
+      const recalcSale = amountUtils.calculateSaleAmount(firstTrade.exit_price, firstTrade.position_size);
       
-      // 완료된 거래 가져오기
-      const { data: completedData, error: completedError } = await supabase
-        .from('completed_trades')
-        .select('*')
-        .order('trade_date', { ascending: false })
-        .limit(50);
-
-      if (completedError) {
-        throw new Error(`완료된 거래 에러: ${completedError.message}`);
-      }
-
-      // 거래 히스토리 가져오기
-      const { data: historyData, error: historyError } = await supabase
-        .from('trading_history')
-        .select('*')
-        .order('trade_date', { ascending: false })
-        .limit(50);
-
-      if (historyError) {
-        throw new Error(`거래 히스토리 에러: ${historyError.message}`);
-      }
-
-      setCompletedTrades(completedData || []);
-      setTradingHistory(historyData || []);
-      setLastUpdated(new Date());
-      
-      console.log(`✅ 데이터 로드 완료: 완료된 거래 ${completedData?.length}개, 거래 히스토리 ${historyData?.length}개`);
-      
-    } catch (err) {
-      console.error('❌ 데이터 로드 에러:', err);
-      setError(err instanceof Error ? err.message : '데이터 로드 실패');
-    } finally {
-      setLoading(false);
+      console.log('재계산 결과:');
+      console.log('매수금액 - 저장값:', firstTrade.purchase_amount, ', 재계산:', recalcPurchase, ', 일치:', firstTrade.purchase_amount === recalcPurchase);
+      console.log('매도금액 - 저장값:', firstTrade.sale_amount, ', 재계산:', recalcSale, ', 일치:', firstTrade.sale_amount === recalcSale);
     }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  // 메트릭 계산
-  const totalTrades = completedTrades.length;
-  const totalWins = completedTrades.filter(trade => trade.win_loss === 'WIN').length;
-  const winRate = totalTrades > 0 ? Math.round((totalWins / totalTrades) * 100 * 100) / 100 : 0;
-  const totalPnL = completedTrades.reduce((sum, trade) => sum + (trade.realized_pnl || 0), 0);
-  const activePositions = tradingHistory.filter(trade => (trade.position_size || 0) > 0).length;
+  }, [metrics, completedTrades]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('ko-KR', {
@@ -130,16 +119,33 @@ export default function SimpleDashboard() {
                 </span>
               )}
               <button
-                onClick={fetchData}
-                disabled={loading}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
-                  loading
+                onClick={refreshData}
+                disabled={loading || isFiltering}
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2 rounded-lg border transition-colors text-sm sm:text-base touch-manipulation ${
+                  loading || isFiltering
                     ? 'border-gray-700 bg-gray-800 text-gray-400 cursor-not-allowed'
-                    : 'border-gray-600 bg-gray-800 text-white hover:border-gray-500 hover:bg-gray-700'
+                    : 'border-gray-600 bg-gray-800 text-white hover:border-gray-500 hover:bg-gray-700 active:bg-gray-600'
                 }`}
               >
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                새로고침
+                <RefreshCw className={`w-4 h-4 ${loading || isFiltering ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">새로고침</span>
+                <span className="sm:hidden">새로고침</span>
+              </button>
+              <button
+                onClick={() => {
+                  clearCache();
+                  refreshData();
+                }}
+                disabled={loading || isFiltering}
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2 rounded-lg border transition-colors text-sm sm:text-base touch-manipulation ${
+                  loading || isFiltering
+                    ? 'border-gray-700 bg-gray-800 text-gray-400 cursor-not-allowed'
+                    : 'border-red-600 bg-red-800 text-white hover:border-red-500 hover:bg-red-700 active:bg-red-600'
+                }`}
+              >
+                <AlertCircle className="w-4 h-4" />
+                <span className="hidden sm:inline">캐시 클리어</span>
+                <span className="sm:hidden">클리어</span>
               </button>
             </div>
           </div>
@@ -160,111 +166,156 @@ export default function SimpleDashboard() {
               <span className="text-green-400 font-medium">실제 데이터 연결됨</span>
             </div>
             <span className="text-gray-400">
-              2번 API 호출 • {totalTrades + tradingHistory.length}개 레코드 로드됨
+              {hasData ? '실시간 데이터' : '데이터 없음'} • {filteredDataPoints}/{totalDataPoints}개 레코드 필터됨
             </span>
           </div>
         </header>
 
-        {/* 메트릭 카드 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* 총 손익 */}
-          <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm font-medium">총 손익</p>
-                <p className={`text-2xl font-bold ${totalPnL >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  {formatCurrency(totalPnL)}
-                </p>
-              </div>
-              <div className={`p-3 rounded-lg ${totalPnL >= 0 ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
-                <Activity className={`w-6 h-6 ${totalPnL >= 0 ? 'text-green-400' : 'text-red-400'}`} />
-              </div>
-            </div>
+        {/* 필터링 UI */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+          <div className="xl:col-span-1">
+            <TradingFilters
+              currentFilters={currentFilters}
+              onFiltersChange={applyFilters}
+              isLoading={loading || isFiltering}
+            />
           </div>
-
-          {/* 승률 */}
-          <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm font-medium">승률</p>
-                <p className={`text-2xl font-bold ${winRate >= 50 ? 'text-green-400' : 'text-red-400'}`}>
-                  {winRate}%
-                </p>
-                <p className="text-xs text-gray-500">{totalWins}승 {totalTrades - totalWins}패</p>
-              </div>
-              <div className={`p-3 rounded-lg ${winRate >= 50 ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
-                <Activity className={`w-6 h-6 ${winRate >= 50 ? 'text-green-400' : 'text-red-400'}`} />
-              </div>
-            </div>
-          </div>
-
-          {/* 활성 포지션 */}
-          <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm font-medium">활성 포지션</p>
-                <p className="text-2xl font-bold text-blue-400">{activePositions}개</p>
-              </div>
-              <div className="p-3 rounded-lg bg-blue-500/10">
-                <Activity className="w-6 h-6 text-blue-400" />
-              </div>
-            </div>
-          </div>
-
-          {/* 총 거래 */}
-          <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm font-medium">총 거래</p>
-                <p className="text-2xl font-bold text-purple-400">{totalTrades}건</p>
-              </div>
-              <div className="p-3 rounded-lg bg-purple-500/10">
-                <Activity className="w-6 h-6 text-purple-400" />
-              </div>
-            </div>
+          <div className="xl:col-span-2">
+            <TradingSummary
+              metrics={metrics}
+              filteredData={filteredData}
+              isLoading={loading || isFiltering}
+            />
           </div>
         </div>
 
-        {/* 완료된 거래 테이블 */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 mb-8">
-          <div className="p-6 border-b border-gray-800">
-            <h2 className="text-xl font-bold text-white">완료된 거래 (최근 10개)</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-800">
-                  <th className="text-left p-4 text-gray-400 font-medium">심볼</th>
-                  <th className="text-left p-4 text-gray-400 font-medium">매수가</th>
-                  <th className="text-left p-4 text-gray-400 font-medium">매도가</th>
-                  <th className="text-left p-4 text-gray-400 font-medium">손익</th>
-                  <th className="text-left p-4 text-gray-400 font-medium">결과</th>
-                  <th className="text-left p-4 text-gray-400 font-medium">매도일</th>
-                </tr>
-              </thead>
-              <tbody>
-                {completedTrades.slice(0, 10).map((trade) => (
-                  <tr key={trade.id} className="border-b border-gray-800/50">
-                    <td className="p-4 font-bold text-blue-400">{trade.symbol}</td>
-                    <td className="p-4 text-white">{formatCurrency(trade.entry_price)}</td>
-                    <td className="p-4 text-white">{formatCurrency(trade.exit_price)}</td>
-                    <td className={`p-4 font-bold ${trade.realized_pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {formatCurrency(trade.realized_pnl)}
-                    </td>
-                    <td className="p-4">
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        trade.win_loss === 'WIN' 
-                          ? 'bg-green-900 text-green-300' 
-                          : 'bg-red-900 text-red-300'
-                      }`}>
-                        {trade.win_loss === 'WIN' ? '승리' : '손실'}
-                      </span>
-                    </td>
-                    <td className="p-4 text-gray-400">{formatDate(trade.trade_date)}</td>
+        {/* 거래 테이블들 */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+          {/* 완료된 거래 테이블 */}
+          <div className="bg-gray-900 rounded-xl border border-gray-800">
+            <div className="p-4 sm:p-6 border-b border-gray-800">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <h2 className="text-lg sm:text-xl font-bold text-white">완료된 거래</h2>
+                <span className="text-sm text-gray-400">
+                  {completedTrades.length}건 필터됨
+                </span>
+              </div>
+            </div>
+            <div className="overflow-x-auto max-h-80 sm:max-h-96">
+              <table className="w-full">
+                <thead className="sticky top-0 bg-gray-900">
+                  <tr className="border-b border-gray-800">
+                    <th className="text-left p-2 sm:p-4 text-gray-400 font-medium text-xs sm:text-sm">심볼</th>
+                    <th className="text-left p-2 sm:p-4 text-gray-400 font-medium text-xs sm:text-sm">매수가</th>
+                    <th className="text-left p-2 sm:p-4 text-gray-400 font-medium text-xs sm:text-sm">매도가</th>
+                    <th className="text-left p-2 sm:p-4 text-gray-400 font-medium text-xs sm:text-sm">매수금액</th>
+                    <th className="text-left p-2 sm:p-4 text-gray-400 font-medium text-xs sm:text-sm">매도금액</th>
+                    <th className="text-left p-2 sm:p-4 text-gray-400 font-medium text-xs sm:text-sm">손익</th>
+                    <th className="text-left p-2 sm:p-4 text-gray-400 font-medium text-xs sm:text-sm">결과</th>
+                    <th className="text-left p-2 sm:p-4 text-gray-400 font-medium text-xs sm:text-sm">날짜</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {completedTrades.length > 0 ? (
+                    completedTrades.slice(0, 20).map((trade) => {
+                      // 안전한 매수금액과 매도금액 계산
+                      const purchaseAmount = trade.purchase_amount ?? amountUtils.calculatePurchaseAmount(trade.entry_price, trade.position_size);
+                      const saleAmount = trade.sale_amount ?? amountUtils.calculateSaleAmount(trade.exit_price, trade.position_size);
+                      
+                      return (
+                        <tr key={`completed-${trade.id}`} className="border-b border-gray-800/50 hover:bg-gray-800/50">
+                          <td className="p-2 sm:p-4 font-bold text-blue-400 text-xs sm:text-sm">{trade.symbol}</td>
+                          <td className="p-2 sm:p-4 text-white text-xs sm:text-sm">{formatCurrency(trade.entry_price)}</td>
+                          <td className="p-2 sm:p-4 text-white text-xs sm:text-sm">{formatCurrency(trade.exit_price || 0)}</td>
+                          <td className="p-2 sm:p-4 text-cyan-400 text-xs sm:text-sm font-medium">
+                            {amountUtils.formatCurrency(purchaseAmount)}
+                          </td>
+                          <td className="p-2 sm:p-4 text-orange-400 text-xs sm:text-sm font-medium">
+                            {amountUtils.formatCurrency(saleAmount)}
+                          </td>
+                          <td className={`p-2 sm:p-4 font-bold text-xs sm:text-sm ${(trade.realized_pnl || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {formatCurrency(trade.realized_pnl || 0)}
+                          </td>
+                          <td className="p-2 sm:p-4">
+                            <span className={`px-1 sm:px-2 py-1 rounded text-xs font-medium ${
+                              trade.win_loss === 'win' 
+                                ? 'bg-green-900 text-green-300' 
+                                : 'bg-red-900 text-red-300'
+                            }`}>
+                              {trade.win_loss === 'win' ? '승' : '패'}
+                            </span>
+                          </td>
+                          <td className="p-2 sm:p-4 text-gray-400 text-xs sm:text-sm">{formatDate(trade.exit_date || trade.trade_date)}</td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={8} className="p-8 text-center text-gray-500">
+                        필터된 완료 거래가 없습니다
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* 활성 포지션 테이블 */}
+          <div className="bg-gray-900 rounded-xl border border-gray-800">
+            <div className="p-4 sm:p-6 border-b border-gray-800">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <h2 className="text-lg sm:text-xl font-bold text-white">활성 포지션</h2>
+                <span className="text-sm text-gray-400">
+                  {activeTrades.length}개 포지션
+                </span>
+              </div>
+            </div>
+            <div className="overflow-x-auto max-h-80 sm:max-h-96">
+              <table className="w-full">
+                <thead className="sticky top-0 bg-gray-900">
+                  <tr className="border-b border-gray-800">
+                    <th className="text-left p-2 sm:p-4 text-gray-400 font-medium text-xs sm:text-sm">심볼</th>
+                    <th className="text-left p-2 sm:p-4 text-gray-400 font-medium text-xs sm:text-sm">진입가</th>
+                    <th className="text-left p-2 sm:p-4 text-gray-400 font-medium text-xs sm:text-sm">현재가</th>
+                    <th className="text-left p-2 sm:p-4 text-gray-400 font-medium text-xs sm:text-sm">수량</th>
+                    <th className="text-left p-2 sm:p-4 text-gray-400 font-medium text-xs sm:text-sm">투자금액</th>
+                    <th className="text-left p-2 sm:p-4 text-gray-400 font-medium text-xs sm:text-sm">미실현손익</th>
+                    <th className="text-left p-2 sm:p-4 text-gray-400 font-medium text-xs sm:text-sm">진입일</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activeTrades.length > 0 ? (
+                    activeTrades.slice(0, 20).map((trade) => {
+                      // 안전한 투자금액 계산
+                      const investmentAmount = trade.purchase_amount ?? amountUtils.calculatePurchaseAmount(trade.entry_price, trade.position_size);
+                      
+                      return (
+                        <tr key={`active-${trade.id}`} className="border-b border-gray-800/50 hover:bg-gray-800/50">
+                          <td className="p-2 sm:p-4 font-bold text-blue-400 text-xs sm:text-sm">{trade.symbol}</td>
+                          <td className="p-2 sm:p-4 text-white text-xs sm:text-sm">{formatCurrency(trade.entry_price)}</td>
+                          <td className="p-2 sm:p-4 text-white text-xs sm:text-sm">{formatCurrency(trade.current_price || trade.entry_price)}</td>
+                          <td className="p-2 sm:p-4 text-purple-400 text-xs sm:text-sm">{trade.position_size}</td>
+                          <td className="p-2 sm:p-4 text-cyan-400 text-xs sm:text-sm font-medium">
+                            {amountUtils.formatCurrency(investmentAmount)}
+                          </td>
+                          <td className={`p-2 sm:p-4 font-bold text-xs sm:text-sm ${(trade.unrealized_pl || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {formatCurrency(trade.unrealized_pl || 0)}
+                          </td>
+                          <td className="p-2 sm:p-4 text-gray-400 text-xs sm:text-sm">{formatDate(trade.trade_date)}</td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={7} className="p-8 text-center text-gray-500">
+                        활성 포지션이 없습니다
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -275,7 +326,7 @@ export default function SimpleDashboard() {
             <div className="flex items-center gap-4 mt-4 sm:mt-0">
               <span className="flex items-center gap-2">
                 <Zap className="w-3 h-3 text-yellow-400" />
-                실제 데이터 모드
+                고급 필터링 모드
               </span>
               <span>v1.0.0</span>
             </div>

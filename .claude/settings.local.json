@@ -14,10 +14,23 @@
       "Bash(curl:*)",
       "Bash(npm run build:*)",
       "Bash(npm run health-check:*)",
-      "Bash(/dev/null)"
+      "Bash(/dev/null)",
+      "Bash(node:*)",
+      "WebFetch(domain:localhost)",
+      "Bash(ps:*)",
+      "Bash(echo:*)",
+      "Bash(/bashes)"
     ],
     "deny": [],
     "ask": [],
     "defaultMode": "acceptEdits"
-  }
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "command": "osascript -e 'display notification \"Claude Code 작업이 완료되었습니다!\" with title \"Claude Code\" sound name \"Blow\"' && afplay /System/Library/Sounds/Blow.aiff",
+        "description": "작업 완료 시 macOS 알림"
+      }
+    ]
 }
